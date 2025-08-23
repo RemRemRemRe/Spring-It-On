@@ -1,11 +1,17 @@
+#if !defined(SPRING_IT_ON_FOR_UNREAL) || !SPRING_IT_ON_FOR_UNREAL
 extern "C"
 {
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 }
+#endif
 
+#if !defined(SPRING_IT_ON_FOR_UNREAL) || !SPRING_IT_ON_FOR_UNREAL
 #include <string.h>
+#endif
+
+#pragma once
 
 //--------------------------------------
 
@@ -48,10 +54,10 @@ float damper_bad(float x, float g, float damping, float dt)
 
 /*
 float damper_exponential(
-    float x, 
-    float g, 
-    float damping, 
-    float dt, 
+    float x,
+    float g,
+    float damping,
+    float dt,
     float ft = 1.0f / 60.0f)
 {
     return lerp(x, g, 1.0f - powf(1.0 - ft * damping, dt / ft));
@@ -59,14 +65,14 @@ float damper_exponential(
 */
 
 float damper_exponential(
-    float x, 
-    float g, 
-    float damping, 
-    float dt, 
+    float x,
+    float g,
+    float damping,
+    float dt,
     float ft = 1.0f / 60.0f)
 {
     return lerp(x, g, 1.0f - powf(1.0 / (1.0 - ft * damping), -dt / ft));
-} 
+}
 
 /*
 float damper_exact(float x, float g, float halflife, float dt)
@@ -101,11 +107,11 @@ float damper_decay_exact(float x, float halflife, float dt, float eps=1e-5f)
 
 void spring_damper_bad(
     float& x,
-    float& v, 
+    float& v,
     float g,
-    float q, 
-    float stiffness, 
-    float damping, 
+    float q,
+    float stiffness,
+    float damping,
     float dt)
 {
     v += dt * stiffness * (g - x) + dt * damping * (q - v);
@@ -127,13 +133,13 @@ float squaref(float x)
 
 /*
 void spring_damper_exact(
-    float& x, 
-    float& v, 
-    float x_goal, 
-    float v_goal, 
-    float stiffness, 
-    float damping, 
-    float dt, 
+    float& x,
+    float& v,
+    float x_goal,
+    float v_goal,
+    float stiffness,
+    float damping,
+    float dt,
     float eps = 1e-5f)
 {
     float g = x_goal;
@@ -156,13 +162,13 @@ void spring_damper_exact(
 */
 
 void spring_damper_exact_stiffness_damping(
-    float& x, 
-    float& v, 
-    float x_goal, 
-    float v_goal, 
-    float stiffness, 
-    float damping, 
-    float dt, 
+    float& x,
+    float& v,
+    float x_goal,
+    float v_goal,
+    float stiffness,
+    float damping,
+    float dt,
     float eps = 1e-5f)
 {
     float g = x_goal;
@@ -170,15 +176,15 @@ void spring_damper_exact_stiffness_damping(
     float s = stiffness;
     float d = damping;
     float c = g + (d*q) / (s + eps);
-    float y = d / 2.0f; 
-    
+    float y = d / 2.0f;
+
     if (fabs(s - (d*d) / 4.0f) < eps) // Critically Damped
     {
         float j0 = x - c;
         float j1 = v + j0*y;
-        
+
         float eydt = fast_negexp(y*dt);
-        
+
         x =  j0*eydt + dt*j1*eydt + c;
         v = -y*j0*eydt - y*dt*j1*eydt + j1*eydt;
     }
@@ -187,11 +193,11 @@ void spring_damper_exact_stiffness_damping(
         float w = sqrtf(s - (d*d)/4.0f);
         float j = sqrtf(squaref(v + y*(x - c)) / (w*w + eps) + squaref(x - c));
         float p = fast_atan((v + (x - c) * y) / (-(x - c)*w + eps));
-        
+
         j = (x - c) > 0.0f ? j : -j;
-        
+
         float eydt = fast_negexp(y*dt);
-        
+
         x = j*eydt*cosf(w*dt + p) + c;
         v = -y*j*eydt*cosf(w*dt + p) - w*j*eydt*sinf(w*dt + p);
     }
@@ -201,7 +207,7 @@ void spring_damper_exact_stiffness_damping(
         float y1 = (d - sqrtf(d*d - 4*s)) / 2.0f;
         float j1 = (c*y0 - x*y0 - v) / (y1 - y0);
         float j0 = x - j1 - c;
-        
+
         float ey0dt = fast_negexp(y0*dt);
         float ey1dt = fast_negexp(y1*dt);
 
@@ -214,7 +220,7 @@ float halflife_to_damping(float halflife, float eps = 1e-5f)
 {
     return (4.0f * 0.69314718056f) / (halflife + eps);
 }
-    
+
 float damping_to_halflife(float damping, float eps = 1e-5f)
 {
     return (4.0f * 0.69314718056f) / (damping + eps);
@@ -241,29 +247,29 @@ float critical_frequency(float halflife)
 }
 
 void spring_damper_exact(
-    float& x, 
-    float& v, 
-    float x_goal, 
-    float v_goal, 
-    float frequency, 
-    float halflife, 
-    float dt, 
+    float& x,
+    float& v,
+    float x_goal,
+    float v_goal,
+    float frequency,
+    float halflife,
+    float dt,
     float eps = 1e-5f)
-{    
+{
     float g = x_goal;
     float q = v_goal;
     float s = frequency_to_stiffness(frequency);
     float d = halflife_to_damping(halflife);
     float c = g + (d*q) / (s + eps);
-    float y = d / 2.0f; 
-    
+    float y = d / 2.0f;
+
     if (fabs(s - (d*d) / 4.0f) < eps) // Critically Damped
     {
         float j0 = x - c;
         float j1 = v + j0*y;
-        
+
         float eydt = fast_negexp(y*dt);
-        
+
         x = j0*eydt + dt*j1*eydt + c;
         v = -y*j0*eydt - y*dt*j1*eydt + j1*eydt;
     }
@@ -272,11 +278,11 @@ void spring_damper_exact(
         float w = sqrtf(s - (d*d)/4.0f);
         float j = sqrtf(squaref(v + y*(x - c)) / (w*w + eps) + squaref(x - c));
         float p = fast_atan((v + (x - c) * y) / (-(x - c)*w + eps));
-        
+
         j = (x - c) > 0.0f ? j : -j;
-        
+
         float eydt = fast_negexp(y*dt);
-        
+
         x = j*eydt*cosf(w*dt + p) + c;
         v = -y*j*eydt*cosf(w*dt + p) - w*j*eydt*sinf(w*dt + p);
     }
@@ -286,7 +292,7 @@ void spring_damper_exact(
         float y1 = (d - sqrtf(d*d - 4*s)) / 2.0f;
         float j1 = (c*y0 - x*y0 - v) / (y1 - y0);
         float j0 = x - j1 - c;
-        
+
         float ey0dt = fast_negexp(y0*dt);
         float ey1dt = fast_negexp(y1*dt);
 
@@ -306,29 +312,29 @@ float damping_ratio_to_damping(float ratio, float stiffness)
 }
 
 void spring_damper_exact_ratio(
-    float& x, 
-    float& v, 
-    float x_goal, 
-    float v_goal, 
-    float damping_ratio, 
-    float halflife, 
-    float dt, 
+    float& x,
+    float& v,
+    float x_goal,
+    float v_goal,
+    float damping_ratio,
+    float halflife,
+    float dt,
     float eps = 1e-5f)
-{    
+{
     float g = x_goal;
     float q = v_goal;
     float d = halflife_to_damping(halflife);
     float s = damping_ratio_to_stiffness(damping_ratio, d);
     float c = g + (d*q) / (s + eps);
-    float y = d / 2.0f; 
-    
+    float y = d / 2.0f;
+
     if (fabs(s - (d*d) / 4.0f) < eps) // Critically Damped
     {
         float j0 = x - c;
         float j1 = v + j0*y;
-        
+
         float eydt = fast_negexp(y*dt);
-        
+
         x = j0*eydt + dt*j1*eydt + c;
         v = -y*j0*eydt - y*dt*j1*eydt + j1*eydt;
     }
@@ -337,11 +343,11 @@ void spring_damper_exact_ratio(
         float w = sqrtf(s - (d*d)/4.0f);
         float j = sqrtf(squaref(v + y*(x - c)) / (w*w + eps) + squaref(x - c));
         float p = fast_atan((v + (x - c) * y) / (-(x - c)*w + eps));
-        
+
         j = (x - c) > 0.0f ? j : -j;
-        
+
         float eydt = fast_negexp(y*dt);
-        
+
         x = j*eydt*cosf(w*dt + p) + c;
         v = -y*j*eydt*cosf(w*dt + p) - w*j*eydt*sinf(w*dt + p);
     }
@@ -351,7 +357,7 @@ void spring_damper_exact_ratio(
         float y1 = (d - sqrtf(d*d - 4*s)) / 2.0f;
         float j1 = (c*y0 - x*y0 - v) / (y1 - y0);
         float j0 = x - j1 - c;
-        
+
         float ey0dt = fast_negexp(y0*dt);
         float ey1dt = fast_negexp(y1*dt);
 
@@ -364,18 +370,18 @@ void spring_damper_exact_ratio(
 //--------------------------------------
 
 void critical_spring_damper_exact(
-    float& x, 
-    float& v, 
-    float x_goal, 
-    float v_goal, 
-    float halflife, 
+    float& x,
+    float& v,
+    float x_goal,
+    float v_goal,
+    float halflife,
     float dt)
 {
     float g = x_goal;
     float q = v_goal;
     float d = halflife_to_damping(halflife);
     float c = g + (d*q) / ((d*d) / 4.0f);
-    float y = d / 2.0f;	
+    float y = d / 2.0f;
     float j0 = x - c;
     float j1 = v + j0*y;
     float eydt = fast_negexp(y*dt);
@@ -385,13 +391,13 @@ void critical_spring_damper_exact(
 }
 
 void simple_spring_damper_exact(
-    float& x, 
-    float& v, 
-    float x_goal, 
-    float halflife, 
+    float& x,
+    float& v,
+    float x_goal,
+    float halflife,
     float dt)
 {
-    float y = halflife_to_damping(halflife) / 2.0f;	
+    float y = halflife_to_damping(halflife) / 2.0f;
     float j0 = x - x_goal;
     float j1 = v + j0*y;
     float eydt = fast_negexp(y*dt);
@@ -401,12 +407,12 @@ void simple_spring_damper_exact(
 }
 
 void decay_spring_damper_exact(
-    float& x, 
-    float& v, 
-    float halflife, 
+    float& x,
+    float& v,
+    float halflife,
     float dt)
 {
-    float y = halflife_to_damping(halflife) / 2.0f;	
+    float y = halflife_to_damping(halflife) / 2.0f;
     float j1 = v + x*y;
     float eydt = fast_negexp(y*dt);
 
