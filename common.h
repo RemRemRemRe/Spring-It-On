@@ -13,6 +13,13 @@ extern "C"
 
 #pragma once
 
+#if defined(SPRING_IT_ON_FOR_UNREAL) && SPRING_IT_ON_FOR_UNREAL
+
+#include <math.h>
+#include "Math/UnrealMathUtility.h"
+#endif
+
+
 //--------------------------------------
 
 float lerp(float x, float y, float a)
