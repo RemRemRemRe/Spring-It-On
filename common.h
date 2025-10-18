@@ -1,3 +1,6 @@
+
+#pragma once
+
 #if !defined(SPRING_IT_ON_FOR_UNREAL) || !SPRING_IT_ON_FOR_UNREAL
 extern "C"
 {
