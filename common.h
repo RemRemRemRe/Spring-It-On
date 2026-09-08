@@ -14,8 +14,6 @@ extern "C"
 #include <string.h>
 #endif
 
-#pragma once
-
 #if defined(SPRING_IT_ON_FOR_UNREAL) && SPRING_IT_ON_FOR_UNREAL
 
 #include <math.h>
@@ -25,39 +23,39 @@ extern "C"
 
 //--------------------------------------
 
-float lerp(float x, float y, float a)
+inline float lerp(float x, float y, float a)
 {
     return (1.0f - a) * x + a * y;
 }
 
-float clamp(float x, float minimum, float maximum)
+inline float clamp(float x, float minimum, float maximum)
 {
     return x > maximum ? maximum : x < minimum ? minimum : x;
 }
 
-float max(float x, float y)
+inline float max(float x, float y)
 {
     return x > y ? x : y;
 }
 
-float min(float x, float y)
+inline float min(float x, float y)
 {
     return x < y ? x : y;
 }
 
-float sign(float x)
+inline float sign(float x)
 {
     return x > 0.0f ? 1.0f : x < 0.0f ? -1.0f : 0.0f;
 }
 
 //--------------------------------------
 
-float damper(float x, float g, float factor)
+inline float damper(float x, float g, float factor)
 {
     return lerp(x, g, factor);
 }
 
-float damper_bad(float x, float g, float damping, float dt)
+inline float damper_bad(float x, float g, float damping, float dt)
 {
     return lerp(x, g, damping * dt);
 }
@@ -74,7 +72,7 @@ float damper_exponential(
 }
 */
 
-float damper_exponential(
+inline float damper_exponential(
     float x,
     float g,
     float damping,
@@ -98,24 +96,24 @@ float damper_exact(float x, float g, float halflife, float dt, float eps=1e-5f)
 }
 */
 
-float fast_negexp(float x)
+inline float fast_negexp(float x)
 {
     return 1.0f / (1.0f + x + 0.48f*x*x + 0.235f*x*x*x);
 }
 
-float damper_exact(float x, float g, float halflife, float dt, float eps=1e-5f)
+inline float damper_exact(float x, float g, float halflife, float dt, float eps=1e-5f)
 {
     return lerp(x, g, 1.0f - fast_negexp((0.69314718056f * dt) / (halflife + eps)));
 }
 
-float damper_decay_exact(float x, float halflife, float dt, float eps=1e-5f)
+inline float damper_decay_exact(float x, float halflife, float dt, float eps=1e-5f)
 {
     return x * fast_negexp((0.69314718056f * dt) / (halflife + eps));
 }
 
 //--------------------------------------
 
-void spring_damper_bad(
+inline void spring_damper_bad(
     float& x,
     float& v,
     float g,
@@ -128,7 +126,7 @@ void spring_damper_bad(
     x += dt * v;
 }
 
-float fast_atan(float x)
+inline float fast_atan(float x)
 {
     float z = fabs(x);
     float w = z > 1.0f ? 1.0f / z : z;
@@ -136,7 +134,7 @@ float fast_atan(float x)
     return copysign(z > 1.0f ? M_PI / 2.0 - y : y, x);
 }
 
-float squaref(float x)
+inline float squaref(float x)
 {
     return x*x;
 }
@@ -171,7 +169,7 @@ void spring_damper_exact(
 }
 */
 
-void spring_damper_exact_stiffness_damping(
+inline void spring_damper_exact_stiffness_damping(
     float& x,
     float& v,
     float x_goal,
@@ -226,37 +224,37 @@ void spring_damper_exact_stiffness_damping(
     }
 }
 
-float halflife_to_damping(float halflife, float eps = 1e-5f)
+inline float halflife_to_damping(float halflife, float eps = 1e-5f)
 {
     return (4.0f * 0.69314718056f) / (halflife + eps);
 }
 
-float damping_to_halflife(float damping, float eps = 1e-5f)
+inline float damping_to_halflife(float damping, float eps = 1e-5f)
 {
     return (4.0f * 0.69314718056f) / (damping + eps);
 }
 
-float frequency_to_stiffness(float frequency)
+inline float frequency_to_stiffness(float frequency)
 {
    return squaref(2.0f * M_PI * frequency);
 }
 
-float stiffness_to_frequency(float stiffness)
+inline float stiffness_to_frequency(float stiffness)
 {
     return sqrtf(stiffness) / (2.0f * M_PI);
 }
 
-float critical_halflife(float frequency)
+inline float critical_halflife(float frequency)
 {
     return damping_to_halflife(sqrtf(frequency_to_stiffness(frequency) * 4.0f));
 }
 
-float critical_frequency(float halflife)
+inline float critical_frequency(float halflife)
 {
     return stiffness_to_frequency(squaref(halflife_to_damping(halflife)) / 4.0f);
 }
 
-void spring_damper_exact(
+inline void spring_damper_exact(
     float& x,
     float& v,
     float x_goal,
@@ -311,17 +309,17 @@ void spring_damper_exact(
     }
 }
 
-float damping_ratio_to_stiffness(float ratio, float damping)
+inline float damping_ratio_to_stiffness(float ratio, float damping)
 {
     return squaref(damping / (ratio * 2.0f));
 }
 
-float damping_ratio_to_damping(float ratio, float stiffness)
+inline float damping_ratio_to_damping(float ratio, float stiffness)
 {
     return ratio * 2.0f * sqrtf(stiffness);
 }
 
-void spring_damper_exact_ratio(
+inline void spring_damper_exact_ratio(
     float& x,
     float& v,
     float x_goal,
@@ -379,7 +377,7 @@ void spring_damper_exact_ratio(
 
 //--------------------------------------
 
-void critical_spring_damper_exact(
+inline void critical_spring_damper_exact(
     float& x,
     float& v,
     float x_goal,
@@ -400,7 +398,7 @@ void critical_spring_damper_exact(
     v = eydt*(v - j1*y*dt);
 }
 
-void simple_spring_damper_exact(
+inline void simple_spring_damper_exact(
     float& x,
     float& v,
     float x_goal,
@@ -416,7 +414,7 @@ void simple_spring_damper_exact(
     v = eydt*(v - j1*y*dt);
 }
 
-void decay_spring_damper_exact(
+inline void decay_spring_damper_exact(
     float& x,
     float& v,
     float halflife,
@@ -432,12 +430,12 @@ void decay_spring_damper_exact(
 
 //--------------------------------------
 
-float halflife_to_lag(float halflife)
+inline float halflife_to_lag(float halflife)
 {
     return halflife / 0.69314718056f;
 }
 
-float lag_to_halflife(float lag)
+inline float lag_to_halflife(float lag)
 {
     return lag * 0.69314718056f;
 }
